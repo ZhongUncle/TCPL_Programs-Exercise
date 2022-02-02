@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXLINES 5000       /* max #lines to be sorted */ 
+#define MAXLINES 5000       /* max #lines to be sorted */
+#define ALLOCSIZE 10000    /* size of available space */
 
 char *lineptr[MAXLINES];    /* pointers to text lines */
 
-int readlines(char *lineptr[], int nlines);
+int readlines(char *lineptr[], int nlines, char *length[]);
 void writelines(char *lineptr[], int nlines);
 
 void qsort(char *lineptr[], int left, int right);
@@ -14,8 +15,9 @@ void qsort(char *lineptr[], int left, int right);
 int main()
 {
     int nlines;     /* number of input lines read */
+    static char *len[ALLOCSIZE];
     
-    if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
+    if ((nlines = readlines(lineptr, MAXLINES, len)) >= 0) {
         qsort(lineptr, 0, nlines-1);
         writelines(lineptr, nlines);
         return 0;
@@ -30,14 +32,14 @@ int mgetline(char *, int);
 char *alloc(int);
 
 /* readline: read input lines */
-int readlines(char *lineptr[], int maxlines)
+int readlines(char *lineptr[], int maxlines, char *length[])
 {
     int len, nlines;
     char *p, line[MAXLEN];
     
     nlines = 0;
     while ((len = mgetline(line, MAXLEN)) > 0) {
-        if (nlines >= maxlines || (p = alloc(len)) == NULL){
+        if (nlines >= maxlines || length++ == NULL){
             return -1;
         }else{
             line[len-1] = '\0'; /* delete newline */
@@ -103,19 +105,4 @@ void swap(char *v[],int i,int j)
     temp=v[i];
     v[i]=v[j];
     v[j]=temp;
-}
-
-#define ALLOCSIZE 10000    /* size of available space */
-
-static char allocbuf[ALLOCSIZE];    /* storage for alloc */
-static char *allocp = allocbuf;        /* next free position */
-
-char *alloc(int n)    /* return pointer to n characters */
-{
-    if (allocbuf + ALLOCSIZE - allocp >= n){    /* it fits */
-        allocp += n;
-        return allocp - n;    /* old p */
-    }else{    /* not enough room */
-        return 0;
-    }
 }
